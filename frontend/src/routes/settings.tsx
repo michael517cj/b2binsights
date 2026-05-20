@@ -289,6 +289,7 @@ function LLMProviderPanel({
   apiKeyFieldMap,
   customNameKey,
   customApiBaseKey,
+  savedCustomName,
 }: {
   title: string;
   description: string;
@@ -299,6 +300,7 @@ function LLMProviderPanel({
   apiKeyFieldMap: Record<string, string>;
   customNameKey: string;
   customApiBaseKey: string;
+  savedCustomName: string;
 }) {
   const currentDefaultModel = values[defaultModelKey] ?? "";
   const currentReasoningModel = values[reasoningModelKey] ?? "";
@@ -308,12 +310,23 @@ function LLMProviderPanel({
     detectProvider(currentDefaultModel || currentReasoningModel)
   );
 
-  const provider = PROVIDERS.find((p) => p.id === providerId) ?? PROVIDERS[0];
+  const savedCustomProvider = savedCustomName.trim()
+    ? {
+        id: "saved-custom",
+        label: savedCustomName.trim(),
+        apiKeyField: apiKeyFieldMap.custom,
+        apiKeyPlaceholder: "",
+        defaultModels: ["openai/custom-model"],
+        reasoningModels: ["openai/custom-reasoning-model"],
+      }
+    : null;
+  const providers = savedCustomProvider ? [...PROVIDERS, savedCustomProvider] : PROVIDERS;
+  const provider = providers.find((p) => p.id === providerId) ?? providers[0];
 
   // When provider changes, update API key field visibility and reset models to first preset
   const handleProviderChange = (newId: string) => {
     setProviderId(newId);
-    const p = PROVIDERS.find((pr) => pr.id === newId)!;
+    const p = providers.find((pr) => pr.id === newId)!;
     // Only reset models if the current values don't belong to the new provider
     if (!currentDefaultModel || detectProvider(currentDefaultModel) !== newId) {
       onChange(defaultModelKey, p.defaultModels[0] ?? "");
@@ -326,6 +339,7 @@ function LLMProviderPanel({
   const apiKeyValue = values[apiKeyFieldMap[provider.id] ?? provider.apiKeyField] ?? "";
   const customName = values[customNameKey] ?? "";
   const customApiBase = values[customApiBaseKey] ?? "";
+  const isCustomProvider = provider.id === "custom" || provider.id === "saved-custom";
 
   return (
     <Card>
@@ -361,7 +375,7 @@ function LLMProviderPanel({
           </div>
         </div>
 
-        {provider.id === "custom" && (
+        {isCustomProvider && (
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor={`${title}-custom-name`}>自定义供应商名字</Label>
@@ -1317,6 +1331,7 @@ export function SettingsPage() {
         apiKeyFieldMap={MAIN_API_KEY_FIELDS}
         customNameKey="custom_llm_provider_name"
         customApiBaseKey="custom_llm_api_base"
+        savedCustomName={data?.settings?.CUSTOM_LLM_PROVIDER_NAME ?? ""}
       />
 
       <LLMProviderPanel
@@ -1329,6 +1344,7 @@ export function SettingsPage() {
         apiKeyFieldMap={EMAIL_API_KEY_FIELDS}
         customNameKey="email_custom_llm_provider_name"
         customApiBaseKey="email_custom_llm_api_base"
+        savedCustomName={data?.settings?.EMAIL_CUSTOM_LLM_PROVIDER_NAME ?? ""}
       />
 
       {/* Search */}
