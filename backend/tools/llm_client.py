@@ -78,6 +78,8 @@ def _provider_key_map(settings: Settings, scope: str) -> dict[str, str]:
             "MOONSHOT_API_KEY": settings.email_moonshot_api_key or settings.moonshot_api_key,
             "MINIMAX_API_KEY": settings.email_minimax_api_key or settings.minimax_api_key,
             "MINIMAX_API_BASE": normalize_minimax_api_base(settings.minimax_api_base),
+            "CUSTOM_LLM_API_KEY": settings.email_custom_llm_api_key or settings.custom_llm_api_key,
+            "CUSTOM_LLM_API_BASE": settings.email_custom_llm_api_base or settings.custom_llm_api_base,
             "ZHIPUAI_API_KEY": settings.email_zai_api_key or settings.zai_api_key,
         }
     return {
@@ -89,6 +91,8 @@ def _provider_key_map(settings: Settings, scope: str) -> dict[str, str]:
         "MOONSHOT_API_KEY": settings.moonshot_api_key,
         "MINIMAX_API_KEY": settings.minimax_api_key,
         "MINIMAX_API_BASE": normalize_minimax_api_base(settings.minimax_api_base),
+        "CUSTOM_LLM_API_KEY": settings.custom_llm_api_key,
+        "CUSTOM_LLM_API_BASE": settings.custom_llm_api_base,
         "ZHIPUAI_API_KEY": settings.zai_api_key,
     }
 
@@ -224,6 +228,20 @@ class LLMTool:
             "temperature": temp,
             "max_tokens": tokens,
         }
+        if self.model.startswith("openai/"):
+            custom_base = (
+                self._settings.email_custom_llm_api_base
+                if self._model_type in {"email", "email_reasoning"} and self._settings.email_custom_llm_api_base
+                else self._settings.custom_llm_api_base
+            ).strip()
+            custom_key = (
+                self._settings.email_custom_llm_api_key
+                if self._model_type in {"email", "email_reasoning"} and self._settings.email_custom_llm_api_key
+                else self._settings.custom_llm_api_key
+            ).strip()
+            if custom_base and custom_key:
+                kwargs["api_base"] = custom_base.rstrip("/")
+                kwargs["api_key"] = custom_key
         if response_format:
             if self._supports_response_format():
                 kwargs["response_format"] = response_format

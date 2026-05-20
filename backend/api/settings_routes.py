@@ -31,6 +31,9 @@ class SettingsPayload(BaseModel):
     zai_api_key: str = ""
     moonshot_api_key: str = ""
     minimax_api_key: str = ""
+    custom_llm_provider_name: str = ""
+    custom_llm_api_key: str = ""
+    custom_llm_api_base: str = ""
     email_openai_api_key: str = ""
     email_anthropic_api_key: str = ""
     email_openrouter_api_key: str = ""
@@ -38,6 +41,9 @@ class SettingsPayload(BaseModel):
     email_zai_api_key: str = ""
     email_moonshot_api_key: str = ""
     email_minimax_api_key: str = ""
+    email_custom_llm_provider_name: str = ""
+    email_custom_llm_api_key: str = ""
+    email_custom_llm_api_base: str = ""
     serper_api_key: str = ""
     tavily_api_key: str = ""
     jina_api_key: str = ""
@@ -181,6 +187,9 @@ async def save_settings(payload: SettingsPayload):
         "zai_api_key": "ZAI_API_KEY",
         "moonshot_api_key": "MOONSHOT_API_KEY",
         "minimax_api_key": "MINIMAX_API_KEY",
+        "custom_llm_provider_name": "CUSTOM_LLM_PROVIDER_NAME",
+        "custom_llm_api_key": "CUSTOM_LLM_API_KEY",
+        "custom_llm_api_base": "CUSTOM_LLM_API_BASE",
         "email_openai_api_key": "EMAIL_OPENAI_API_KEY",
         "email_anthropic_api_key": "EMAIL_ANTHROPIC_API_KEY",
         "email_openrouter_api_key": "EMAIL_OPENROUTER_API_KEY",
@@ -188,6 +197,9 @@ async def save_settings(payload: SettingsPayload):
         "email_zai_api_key": "EMAIL_ZAI_API_KEY",
         "email_moonshot_api_key": "EMAIL_MOONSHOT_API_KEY",
         "email_minimax_api_key": "EMAIL_MINIMAX_API_KEY",
+        "email_custom_llm_provider_name": "EMAIL_CUSTOM_LLM_PROVIDER_NAME",
+        "email_custom_llm_api_key": "EMAIL_CUSTOM_LLM_API_KEY",
+        "email_custom_llm_api_base": "EMAIL_CUSTOM_LLM_API_BASE",
         "serper_api_key": "SERPER_API_KEY",
         "tavily_api_key": "TAVILY_API_KEY",
         "jina_api_key": "JINA_API_KEY",

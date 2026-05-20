@@ -17,6 +17,7 @@ _LLM_KEYS = {
     "ZAI_API_KEY",
     "MOONSHOT_API_KEY",
     "MINIMAX_API_KEY",
+    "CUSTOM_LLM_API_KEY",
 }
 
 

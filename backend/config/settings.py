@@ -109,6 +109,9 @@ class Settings(BaseSettings):
     moonshot_api_key: str = ""    # Kimi / Moonshot AI
     minimax_api_key: str = ""
     minimax_api_base: str = "https://api.minimax.io/v1"
+    custom_llm_provider_name: str = ""
+    custom_llm_api_key: str = ""
+    custom_llm_api_base: str = ""
     email_openai_api_key: str = ""
     email_anthropic_api_key: str = ""
     email_openrouter_api_key: str = ""
@@ -116,6 +119,9 @@ class Settings(BaseSettings):
     email_zai_api_key: str = ""
     email_moonshot_api_key: str = ""
     email_minimax_api_key: str = ""
+    email_custom_llm_provider_name: str = ""
+    email_custom_llm_api_key: str = ""
+    email_custom_llm_api_base: str = ""
 
     # --- Search ---
     serper_api_key: str = ""

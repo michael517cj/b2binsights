@@ -116,6 +116,14 @@ const PROVIDERS: Provider[] = [
     defaultModels: ["openai/MiniMax-Text-01"],
     reasoningModels: ["openai/MiniMax-Text-01"],
   },
+  {
+    id: "custom",
+    label: "自定义",
+    apiKeyField: "custom_llm_api_key",
+    apiKeyPlaceholder: "",
+    defaultModels: ["openai/custom-model"],
+    reasoningModels: ["openai/custom-reasoning-model"],
+  },
 ];
 
 const MAIN_API_KEY_FIELDS: Record<string, string> = {
@@ -126,6 +134,7 @@ const MAIN_API_KEY_FIELDS: Record<string, string> = {
   glm: "zai_api_key",
   kimi: "moonshot_api_key",
   minimax: "minimax_api_key",
+  custom: "custom_llm_api_key",
 };
 
 const EMAIL_API_KEY_FIELDS: Record<string, string> = {
@@ -136,6 +145,7 @@ const EMAIL_API_KEY_FIELDS: Record<string, string> = {
   glm: "email_zai_api_key",
   kimi: "email_moonshot_api_key",
   minimax: "email_minimax_api_key",
+  custom: "email_custom_llm_api_key",
 };
 
 // ── Helpers to detect provider from a model string ───────────────────────────
@@ -148,6 +158,7 @@ function detectProvider(model: string): string {
   if (model.startsWith("openai/glm") || model.startsWith("openai/glm")) return "glm";
   if (model.startsWith("openai/moonshot") || model.startsWith("openai/kimi")) return "kimi";
   if (model.startsWith("openai/MiniMax")) return "minimax";
+  if (model.startsWith("openai/") && !["gpt-", "o1", "o3", "o4"].some((prefix) => model.slice("openai/".length).startsWith(prefix))) return "custom";
   return "openai";
 }
 
@@ -276,6 +287,8 @@ function LLMProviderPanel({
   defaultModelKey,
   reasoningModelKey,
   apiKeyFieldMap,
+  customNameKey,
+  customApiBaseKey,
 }: {
   title: string;
   description: string;
@@ -284,6 +297,8 @@ function LLMProviderPanel({
   defaultModelKey: string;
   reasoningModelKey: string;
   apiKeyFieldMap: Record<string, string>;
+  customNameKey: string;
+  customApiBaseKey: string;
 }) {
   const currentDefaultModel = values[defaultModelKey] ?? "";
   const currentReasoningModel = values[reasoningModelKey] ?? "";
@@ -309,6 +324,8 @@ function LLMProviderPanel({
   };
 
   const apiKeyValue = values[apiKeyFieldMap[provider.id] ?? provider.apiKeyField] ?? "";
+  const customName = values[customNameKey] ?? "";
+  const customApiBase = values[customApiBaseKey] ?? "";
 
   return (
     <Card>
@@ -344,9 +361,33 @@ function LLMProviderPanel({
           </div>
         </div>
 
+        {provider.id === "custom" && (
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-1.5">
+              <Label htmlFor={`${title}-custom-name`}>自定义供应商名字</Label>
+              <Input
+                id={`${title}-custom-name`}
+                value={customName}
+                onChange={(e) => onChange(customNameKey, e.target.value)}
+                placeholder="例如 OpenAI Compatible"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor={`${title}-custom-api-base`}>API 请求地址</Label>
+              <Input
+                id={`${title}-custom-api-base`}
+                value={customApiBase}
+                onChange={(e) => onChange(customApiBaseKey, e.target.value)}
+                placeholder="https://api.example.com/v1"
+                className="font-mono text-sm"
+              />
+            </div>
+          </div>
+        )}
+
         {/* API Key — only show the relevant one */}
         <div className="space-y-1.5">
-          <Label htmlFor="llm-api-key">{provider.label} API Key</Label>
+          <Label htmlFor="llm-api-key">{provider.id === "custom" && customName ? customName : provider.label} API Key</Label>
           <SecretInput
             id="llm-api-key"
             value={apiKeyValue}
@@ -1160,6 +1201,9 @@ export function SettingsPage() {
         ZAI_API_KEY: "zai_api_key",
         MOONSHOT_API_KEY: "moonshot_api_key",
         MINIMAX_API_KEY: "minimax_api_key",
+        CUSTOM_LLM_PROVIDER_NAME: "custom_llm_provider_name",
+        CUSTOM_LLM_API_KEY: "custom_llm_api_key",
+        CUSTOM_LLM_API_BASE: "custom_llm_api_base",
         EMAIL_OPENAI_API_KEY: "email_openai_api_key",
         EMAIL_ANTHROPIC_API_KEY: "email_anthropic_api_key",
         EMAIL_OPENROUTER_API_KEY: "email_openrouter_api_key",
@@ -1167,6 +1211,9 @@ export function SettingsPage() {
         EMAIL_ZAI_API_KEY: "email_zai_api_key",
         EMAIL_MOONSHOT_API_KEY: "email_moonshot_api_key",
         EMAIL_MINIMAX_API_KEY: "email_minimax_api_key",
+        EMAIL_CUSTOM_LLM_PROVIDER_NAME: "email_custom_llm_provider_name",
+        EMAIL_CUSTOM_LLM_API_KEY: "email_custom_llm_api_key",
+        EMAIL_CUSTOM_LLM_API_BASE: "email_custom_llm_api_base",
         SERPER_API_KEY: "serper_api_key",
         TAVILY_API_KEY: "tavily_api_key",
         JINA_API_KEY: "jina_api_key",
@@ -1268,6 +1315,8 @@ export function SettingsPage() {
         defaultModelKey="llm_model"
         reasoningModelKey="reasoning_model"
         apiKeyFieldMap={MAIN_API_KEY_FIELDS}
+        customNameKey="custom_llm_provider_name"
+        customApiBaseKey="custom_llm_api_base"
       />
 
       <LLMProviderPanel
@@ -1278,6 +1327,8 @@ export function SettingsPage() {
         defaultModelKey="email_llm_model"
         reasoningModelKey="email_reasoning_model"
         apiKeyFieldMap={EMAIL_API_KEY_FIELDS}
+        customNameKey="email_custom_llm_provider_name"
+        customApiBaseKey="email_custom_llm_api_base"
       />
 
       {/* Search */}
